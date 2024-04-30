@@ -30,8 +30,8 @@ export default function Name() {
             if (name === "admin") {
               navigate("/admin")
             } else {
-              sendDeviceCommand("?read:/home/mha/self_fit.cfg");
-              navigate("/select")
+              sendDeviceCommand("?read:/home/mha/dc_tuning.cfg");
+              navigate("/manual_fit")
               // pause 1 seconds
               setTimeout(() => {console.log('start program')}, 2000)
               sendDeviceCommand("cmd=start");

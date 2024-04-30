@@ -18,7 +18,7 @@ import FittingInstruction2 from "./pages/FittingInstruction2";
 import FittingInstruction22 from "./pages/FittingInstruction22";
 import GridFitting from "./pages/GridFitting";
 import ButtonFitting from "./pages/ButtonFitting";
-
+import ManualFitting from "./pages/Manual_Fitting";
 import SplashScreen from "./components/StartMenu";
 
 import CollapsingSidebar from "./components/CollapsingSidebar";
@@ -52,6 +52,7 @@ const routes = [
     name: "Fitting Instruction2",
     element: <FittingInstruction22 />,
   },
+  { path: "/manual_fit", name: "ManualFitting", element: <ManualFitting /> },
   { path: "/buttons", name: "ButtonFitting", element: <ButtonFitting /> },
   { path: "/grid", name: "GridFitting", element: <GridFitting /> },
   { path: "/prompt", name: "Prompt", element: <Prompt /> },

@@ -1,0 +1,92 @@
+import React, { useState } from 'react';
+import '../styles/Manual_fitting.css'; // Make sure this path is correct
+import { sendSetDeviceGainButtonCommand } from '../Command';
+import { matrixFormatter } from '../components/ButtonLayout';
+ 
+interface FrequencyValues {
+  expansionSlope: string; // Temporarily store as string
+  fortyDb: string;
+  seventyDb: string;
+}
+ 
+interface Values {
+  [key: string]: FrequencyValues;
+}
+ 
+function ManualFitting() {
+  const [values, setValues] = useState<Values>({
+    "0.25 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' },
+    "0.5 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' },
+    "1 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' },
+    "2 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' },
+    "4 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' },
+    "6 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' }
+  });
+ 
+  const handleChange = (frequency: string, field: keyof FrequencyValues, value: string) => {
+    setValues(prevValues => ({
+      ...prevValues,
+      [frequency]: {
+        ...prevValues[frequency],
+        [field]: value // Directly using the string value
+      }
+    }));
+  };
+ 
+  const handleSubmit = () => {
+    const matrix: number[][] = Object.values(values).map(({ expansionSlope, fortyDb, seventyDb }) => {
+      const expSlopeNum = parseFloat(expansionSlope);
+      const fortyDbNum = parseFloat(fortyDb);
+      const seventyDbNum = parseFloat(seventyDb);
+      const calculatedValue = 40 + fortyDbNum - 40 * expSlopeNum;
+      return [calculatedValue, fortyDbNum, seventyDbNum];
+    });
+ 
+    console.log(matrix); // Logging the matrix to the console as numbers
+    sendSetDeviceGainButtonCommand(matrixFormatter(matrix));
+  };
+ 
+  return (
+<div>
+<table className="frequency-table" style={{ marginTop: '70px' }}>
+<thead>
+<tr>
+<th>Expansion Slope</th>
+<th>40 dB</th>
+<th>80 dB</th>
+</tr>
+</thead>
+<tbody>
+          {Object.entries(values).map(([frequency, data]) => (
+<tr key={frequency}>
+<td>
+<input
+                  type="text" // Changed to text to allow negative sign and validation handling
+                  value={data.expansionSlope}
+                  onChange={(e) => handleChange(frequency, 'expansionSlope', e.target.value)}
+                />
+</td>
+<td>
+<input
+                  type="text"
+                  value={data.fortyDb}
+                  onChange={(e) => handleChange(frequency, 'fortyDb', e.target.value)}
+                />
+</td>
+<td>
+<input
+                  type="text"
+                  value={data.seventyDb}
+                  onChange={(e) => handleChange(frequency, 'seventyDb', e.target.value)}
+                />
+</td>
+</tr>
+          ))}
+</tbody>
+</table>
+<button style={{ marginTop: '50px' }} className="big-button-admin" onClick={handleSubmit}>Apply</button>
+</div>
+  );
+}
+ 
+export default ManualFitting;

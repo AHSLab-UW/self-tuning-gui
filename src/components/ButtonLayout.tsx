@@ -108,29 +108,35 @@ export function gridMatrixFormatter(arr: math.Matrix): math.Matrix{
 // accepts a 6x3 2d array and returns it into a 12x19 matrix, properly 
 // formatted for hearing aid device
 export function matrixFormatter(arr: number[][]): math.Matrix {
-  if(arr[0][2] == null){
-    for(let row = 0; row < 6; row++){
-      arr[row][1] = arr[row][0];
-      arr[row][2] = arr[row][0]
-    }
-  }
+  // if(arr[0][2] == null){
+  //   for(let row = 0; row < 6; row++){
+  //     arr[row][1] = arr[row][0];
+  //     arr[row][2] = arr[row][0]
+  //   }
+  // }
   let matrix = BLANK_TABLE
   for(let i = 0; i < 6; i++){
     let left = arr[i][0]
     let mid = arr[i][1]
     let right = arr[i][2]
-    for(let j = 0; j < 11; j++){
-      matrix.set([i, j], left)
-      matrix.set([i + 6, j], left)
-    }
-    for(let j = 11; j < 15; j++){
-      matrix.set([i, j], mid)
-      matrix.set([i + 6, j], mid)
-    }
-    for(let j = 15; j < 19; j++){
-      matrix.set([i, j], right)
-      matrix.set([i + 6, j], right)
-    }
+    matrix.set([i, 0], left)
+    matrix.set([i + 6, 0], left)
+    matrix.set([i, 1], mid)
+    matrix.set([i, 2], right)
+    matrix.set([i+6, 1], mid)
+    matrix.set([i+6, 2], right)
+  //   for(let j = 0; j < 11; j++){
+  //     matrix.set([i, j], left)
+  //     matrix.set([i + 6, j], left)
+  //   }
+  //   for(let j = 11; j < 15; j++){
+  //     matrix.set([i, j], mid)
+  //     matrix.set([i + 6, j], mid)
+  //   }
+  //   for(let j = 15; j < 19; j++){
+  //     matrix.set([i, j], right)
+  //     matrix.set([i + 6, j], right)
+  //   }
   }
   console.log("Sending this matrix: " + matrix.toString());
   return matrix

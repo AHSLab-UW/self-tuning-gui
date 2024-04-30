@@ -1,0 +1,23 @@
+.frequency-table td {
+  height: 90px; /* Adjust the height as needed */
+  width: 110px;
+
+  text-align: center;
+
+}
+ 
+.frequency-table input {
+  font-size: large;
+  width: 70%;
+  height: 80%;
+  box-sizing: border-box; /* Ensures padding does not affect width */
+}
+
+th{
+  font-size: 17px;
+  font-family:'Montserrat';
+  text-shadow: 1px 1px #00030B;
+  color: #f2f3c0;
+  line-height: 1.4;
+
+}
