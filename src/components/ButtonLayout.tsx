@@ -6,7 +6,7 @@ import "../styles/NextButton.css";
 import { getRandomColor } from "../Colors";
 import { sendSetDeviceGainButtonCommand, sendStoreButtonClickCommand, sendStoreButtonStepCommand, sendStoreLogCommand } from '../Command';
 import { send } from 'process';
-import { getFinalG } from '../pages/ButtonFitting';
+import { getFinalG, initialGain } from '../pages/ButtonFitting';
 import { getWindowDimensions } from './GridLayout';
 
 interface Props {
@@ -16,14 +16,9 @@ interface Props {
 
 let explored_set = new Set();
 let trialNum = 1;
-var initialGain: number[][] = [ [0-5, 0, 0],
-                                [0-5, 0, 0],
-                                [0-6, 0, 0],
-                                [0-7, 0, 0],
-                                [6-8, 6, 6],
-                                [10-7, 10, 10]];
 
-let aggregateGain: number[][] = initialGain
+var aggregateGain: number[][] = initialGain
+
 export var lastRounds = initialGain;
 // buttons map to different gains
 const VALUES = new Map<number, number>();
@@ -33,12 +28,12 @@ VALUES.set(2, 2);
 VALUES.set(3, -1);
 VALUES.set(4, -2);
 
-const BLANK_TABLE = math.matrix( [ [0-5, 0, 0],
-  [0-5, 0, 0],
-  [0-6, 0, 0],
-  [0-7, 0, 0],
-  [6-8, 6, 6],
-  [10-7, 10, 10]] )
+export const BLANK_TABLE = math.matrix( [  [0, 0, 0],
+                                    [0, 0, 0],
+                                    [0, 0, 0],
+                                    [0, 0, 0],
+                                    [0, 0, 0],
+                                    [0, 0, 0]] )
 
 export interface Coordinates {
   x: number;
@@ -48,19 +43,19 @@ export interface Coordinates {
 export const MAX_STEP = 20;
 export const DB_GAIN = 6;
 
-export const MAX_DB_LF = 25;
-export const MAX_DB_HF = 25;
+export const MAX_DB_LF = 35;
+export const MAX_DB_HF = 35;
 export const MIN_DB_LF = -15;
 export const MIN_DB_HF = -15;
 
-export const db_indices = [ 6, 6, 
-                            5, 5, 
-                            3, 
-                            4, 
-                            4, 4, 
-                            5, 7, 7, 6,
-                            7, 5, 6, 6,
-                            5, 6, 6, 6
+export const db_indices = [ 10, 10, 
+                            8, 8, 
+                            5, 
+                            7, 
+                            7, 7, 
+                            10, 10, 8, 8,
+                            9, 9, 8, 8,
+                            8, 7, 7, 8
                           ]
 
 // gainIndex determines which frequency band (1-6) to adjust
@@ -87,13 +82,6 @@ export function gainToString(arr: number[][]): string {
   // console.log(str)
   return str;
 }
-
-export function setInitial(arr: number[][]){
-  initialGain = arr;
-  aggregateGain = initialGain
-  sendSetDeviceGainButtonCommand(matrixFormatter(arr))
-}
-
 // coverts a 1x6 to a 3x6 for matrixformatter
 export function gridMatrixFormatter(arr: math.Matrix): math.Matrix{
   let a: number[][] = [[0, 0, 0], [0, 0, 0],[0, 0, 0], [0, 0, 0], [0, 0, 0], [0, 0, 0]];
@@ -169,7 +157,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
   // which option did user click on last, is random to begin
   const [lastClickedIndex, setLastClickedIndex] = useState<number>(0);
   // current summation of all gainDeltas
-  // const [aggregateGain, setAggregateGain] = useState<number[][]>(INITIAL_GAIN);
+  const [aggregateGain, setAggregateGain] = useState<number[][]>(initialGain);
   // when user clicks two different options during the same trial, 
   // we can revert their previous selection by subtracting lastDelta
   const [newGain, setNewGain] = useState<number[][]>(initialGain);
@@ -181,19 +169,21 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
   const coords: number[][] = getCoords();
   
   const gainClick = (index: number): void => {
-    if(trialNum == 1){explored_set.add(0)}
+    if(trialNum == 1){
+      explored_set.add(0)
+    }
     explored_set.add(index);
-    if(explored_set.size < 5){setIsExplored(false)}//<---- ensure exploration #1
+    if(explored_set.size < 5){
+      setIsExplored(false)
+    } //<---- ensure exploration #1
     else{setIsExplored(true)}
     setLastClickedIndex(index)
-
     let gainIndex = GAIN_INDICES.get(trialNum) || [];
     let button_coeff= VALUES.get(gainShuffler[index]) || 0
     let delta_step = db_indices[trialNum-1]
     let delta = button_coeff * delta_step
-    // console.log(gainIndex)
-    const newGain = JSON.parse(JSON.stringify(aggregateGain));
-    
+    console.log(aggregateGain)
+    let newGain = JSON.parse(JSON.stringify(aggregateGain));
     for (let i = 0; i < gainIndex.length; i++) {
       let gindex = gainIndex[i];
       if (!isNaN(gindex)) {
@@ -207,15 +197,24 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
             MIN_DB = MIN_DB_HF;
           }
           // Update the matrix elements
-          newGain[gindex][0] = Math.min(Math.max(newGain[gindex][0] + delta, MIN_DB-8), MAX_DB-7);
-          newGain[gindex][1] = Math.min(Math.max(newGain[gindex][1] + delta, MIN_DB), MAX_DB);
-          newGain[gindex][2] = Math.min(Math.max(newGain[gindex][2] + delta, MIN_DB), MAX_DB);
+          // newGain[gindex][0] = Math.min(newGain[gindex][0] + delta, MAX_DB-7);
+          let slope = (40 + aggregateGain[gindex][1] - aggregateGain[gindex][0]) / 40
+          newGain[gindex][1] = JSON.parse(JSON.stringify(Math.min(Math.max(aggregateGain[gindex][1] + delta, MIN_DB), MAX_DB)));
+          newGain[gindex][0] = JSON.parse(JSON.stringify(40 + newGain[gindex][1] - 40 * slope));
+          if (newGain[gindex][1] < aggregateGain[gindex][2]){
+            console.log('here')
+            newGain[gindex][2] = JSON.parse(JSON.stringify(newGain[gindex][1]))
+          }
+          else{
+            newGain[gindex][2] = JSON.parse(JSON.stringify(aggregateGain[gindex][2]))
+          }
+          //newGain[gindex][2] = Math.min(Math.max(newGain[gindex][2] + delta, MIN_DB), MAX_DB);
       } else {
         console.error(`Invalid index: ${gainIndex[i]}`);
       }
     }
-    //console.log("now l" , newGain[0][0],newGain[1] [0], newGain[2][0], newGain[3][0],newGain[4][0], newGain[5][0])
-    //console.log("now h" , newGain[0][1],newGain[1] [1], newGain[2][1], newGain[3][1],newGain[4][1], newGain[5][1])
+    // console.log("now l" , newGain[0][0],newGain[1] [0], newGain[2][0], newGain[3][0],newGain[4][0], newGain[5][0])
+    // console.log("now h" , newGain[0][1],newGain[1] [1], newGain[2][1], newGain[3][1],newGain[4][1], newGain[5][1])
     setNewGain(newGain)
     sendSetDeviceGainButtonCommand(matrixFormatter(newGain));
     
@@ -248,7 +247,6 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
       // Iterate over the elements in band
       for (let i = 0; i < band.length; i++) {
         let index = band[i];
-
         // Check if index is a valid index for newGain and lastRounds
         if (index >= 0 && index < newGain.length && index < lastRounds.length) {
           lastRounds[index][round] = newGain[index][round];
@@ -258,10 +256,8 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
       }
       //console.log(lastRounds)
     }
-    // setAggregateGain(newGain)
-    aggregateGain = JSON.parse(JSON.stringify(newGain));
-    //sendStoreButtonStepCommand(math.matrix(aggregateGain), trialNum);
-    //console.log("aggragategain", aggregateGain)
+    setAggregateGain(newGain)
+    //aggregateGain = newGain;
      // get first column of newGain and store
      let newGainCol = [];
      for(let i = 0; i < 6; i++){
@@ -292,7 +288,6 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
     // const newRotationAngle = (rotationAngle + 10) % 360;
     // setRotationAngle(newRotationAngle);
     setGainShuffler(gainShuffler.sort((a, b) => 0.5 - Math.random()))
-
     gainClick(randomIndex)
   }
 
@@ -327,16 +322,14 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
     for(let i = 0; i < 6; i++){
       //console.log("lastRounds = " + lastRounds)
       let avg = math.round((lastRounds[i][0] + lastRounds[i][1] + lastRounds[i][2]) / 3);
-      aggregateGain[i][0] = avg;
+      let slope = (40 + aggregateGain[i][1] - aggregateGain[i][0]) / 40
+      aggregateGain[i][0] = 40 + avg - 40 * slope;
       aggregateGain[i][1] = avg;
-      aggregateGain[i][2] = avg;
+      if (aggregateGain[i][1] <= aggregateGain[i][2]){
+        aggregateGain[i][2] = aggregateGain[i][1]
+      }
+      // aggregateGain[i][2] = avg;
     }
-    aggregateGain[0][0] = aggregateGain[0][1]-5;
-    aggregateGain[1][0] = aggregateGain[1][1]-5;
-    aggregateGain[2][0] = aggregateGain[2][1]-6;
-    aggregateGain[3][0] = aggregateGain[3][1]-7;
-    aggregateGain[4][0] = aggregateGain[4][1]-8;
-    aggregateGain[5][0] = aggregateGain[5][1]-7;
     console.log("avg = " + aggregateGain)
     setNewGain(aggregateGain)
     sendSetDeviceGainButtonCommand(matrixFormatter(aggregateGain));
@@ -348,7 +341,6 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
       avgGainCol.push(aggregateGain[i][1])
      }
     sendStoreButtonStepCommand(math.matrix(avgGainCol), 50);
-    
     setFitted(2)
     trialNum = 1;
   }

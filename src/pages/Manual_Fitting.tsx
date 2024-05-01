@@ -2,7 +2,20 @@ import React, { useState } from 'react';
 import '../styles/Manual_fitting.css'; // Make sure this path is correct
 import { sendSetDeviceGainButtonCommand } from '../Command';
 import { matrixFormatter } from '../components/ButtonLayout';
- 
+
+export var NAL_TABLE: number[][] = [[0, 10, 5],
+                                    [0, 10, 5],
+                                    [0, 10, 5],
+                                    [0, 10, 6],
+                                    [0, 16, 6],
+                                    [0, 20, 10]];
+
+// Function to update the matrix
+export const setMatrix = (newMatrix: number[][]) => {
+  NAL_TABLE = newMatrix;
+  sendSetDeviceGainButtonCommand(matrixFormatter(NAL_TABLE))
+};
+
 interface FrequencyValues {
   expansionSlope: string; // Temporarily store as string
   fortyDb: string;
@@ -15,9 +28,9 @@ interface Values {
  
 function ManualFitting() {
   const [values, setValues] = useState<Values>({
-    "0.25 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' },
-    "0.5 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' },
-    "1 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' },
+    "0.25 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '5' },
+    "0.5 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '5' },
+    "1 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '5' },
     "2 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' },
     "4 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' },
     "6 kHz": { expansionSlope: '1', fortyDb: '10', seventyDb: '0' }
@@ -41,7 +54,7 @@ function ManualFitting() {
       const calculatedValue = 40 + fortyDbNum - 40 * expSlopeNum;
       return [calculatedValue, fortyDbNum, seventyDbNum];
     });
- 
+    setMatrix(matrix);
     console.log(matrix); // Logging the matrix to the console as numbers
     sendSetDeviceGainButtonCommand(matrixFormatter(matrix));
   };

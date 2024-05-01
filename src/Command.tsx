@@ -107,7 +107,6 @@ export const sendStoreButtonStepCommand = (g: math.Matrix, step: number) => {
   fetch(`/storestep?name=${file_name}&step=${step}&g=${g_clipped}`);
 };
 
-
 export const sendStoreStepCommand = (g: math.Matrix, step: number) => {
   if (localStorage.getItem("name") === "admin") return;
 

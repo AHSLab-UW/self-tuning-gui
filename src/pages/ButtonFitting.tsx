@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import ButtonLayout, { MAX_DB_HF, MAX_DB_LF, MIN_DB_HF, MIN_DB_LF, matrixFormatter, setInitial } from "../components/ButtonLayout";
+import ButtonLayout, { MAX_DB_HF, MAX_DB_LF, MIN_DB_HF, MIN_DB_LF, matrixFormatter} from "../components/ButtonLayout";
 import * as math from "mathjs";
 import ReactSlider from "react-slider";
 import { NextButton } from "../components/NextButton";
@@ -7,52 +7,59 @@ import "../styles/Fitting.css";
 import "../styles/Slider.css";
 import { sendStoreFinalStepCommand, sendSetDeviceGainButtonCommand, sendStoreStepCommand, sendStoreButtonStepCommand, sendResetDeviceGainCommand } from "../Command";
 import Halfway from "../components/Halfway";
+import { NAL_TABLE } from "./Manual_Fitting";
 
 
-
-const blank_table = [ [0-5, 0, 0],
-[0-5, 0, 0],
-[0-6, 0, 0],
-[0-7, 0, 0],
-[6-8, 6, 6],
-[10-7, 10, 10]];
+export var initialGain: number[][] = [[0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0]];
 
 export var finalGains = [[0, 0, 0],
-                        [0, 0, 0],
-                        [0, 0, 0],
-                        [0, 0, 0],
-                        [0, 0, 0],
-                        [0, 0, 0]];
+                         [0, 0, 0],
+                         [0, 0, 0],
+                         [0, 0, 0],
+                         [0, 0, 0],
+                         [0, 0, 0]];
 
 export var finalGains_afterSlider = [[0, 0, 0],
-                        [0, 0, 0],
-                        [0, 0, 0],
-                        [0, 0, 0],
-                        [0, 0, 0],
-                        [0, 0, 0]];
+                                    [0, 0, 0],
+                                    [0, 0, 0],
+                                    [0, 0, 0],
+                                    [0, 0, 0],
+                                    [0, 0, 0]];
                         
-
 //let last_arr: number[][] = [];
 let final_arr: number[] = [];
-let first_arr: number[][] = blank_table;
-let MAX_DB = 30;
+// let first_arr: number[][] = [ [0, 0, 0],
+//                               [0, 0, 0],
+//                               [0, 0, 0],
+//                               [0, 0, 0],
+//                               [6, 6, 6],
+//                               [10, 10, 10]];
 let slider_flag = 0
 // export function getLast(arr: number[][]) {
 //   last_arr = arr;
 // }
+export function setInitial(arr: number[][]){
+  initialGain = arr;
+  sendSetDeviceGainButtonCommand(matrixFormatter(initialGain))
+}
 export function getFinalG(arr: number[][]) {
   finalGains = arr;
 }
 export default function ButtonFitting(this: any) {
-  const [gAvg, setGAvg] = useState<math.Matrix>(math.matrix([]));
+  // const [gAvg, setGAvg] = useState<math.Matrix>(math.matrix([]));
   const [fitted, setFitted] = useState<number>(0);
-  
   const [half, setHalf] = useState(true);
   
   useEffect(() => {
-    setInitial(blank_table);
+    setInitial(NAL_TABLE);
     setHalf(false)
-  }, blank_table // Empty dependency array to execute the effect only once
+    console.log("initial table is ", initialGain)
+  }, NAL_TABLE // Empty dependency array to execute the effect only once
   )
 
   const handleContinue = () => {
@@ -60,21 +67,17 @@ export default function ButtonFitting(this: any) {
   }
 
   function firstSlider(){
-
     let newGainCol = [];
     for(let i = 0; i < 6; i++){
-      newGainCol.push(first_arr[i][0])
+      newGainCol.push(initialGain[i][1])
     }
-
     final_arr = newGainCol
     sendStoreStepCommand(math.matrix(final_arr),0)
-
     setFitted(1);
   }
 
   function finishButton(){
     let newGainCol = [];
-
     if (slider_flag == 0){
       // console.log("Final Button: " + finalGains)
       for(let i = 0; i < 6; i++){
@@ -109,7 +112,7 @@ export default function ButtonFitting(this: any) {
               max={10}
               invert={true}
               onChange={(val) => {
-                let gain_table: number[][] = JSON.parse(JSON.stringify(blank_table));
+                let gain_table: number[][] = JSON.parse(JSON.stringify(NAL_TABLE));
                 for(let i = 0; i < gain_table.length; i++){
                   for(let j = 0; j < 3; j++){
                     if(i < 3){
@@ -119,13 +122,16 @@ export default function ButtonFitting(this: any) {
                       var MAX_DB = MAX_DB_HF;
                       var MIN_DB = MIN_DB_HF;
                     }
-                    gain_table[i][0] = Math.min(Math.max(gain_table[i][0] + val, MIN_DB-8), MAX_DB-7);
                     gain_table[i][1] = Math.min(Math.max(gain_table[i][1] + val, MIN_DB), MAX_DB);
-                    gain_table[i][2] = Math.min(Math.max(gain_table[i][2] + val, MIN_DB), MAX_DB);
+                    gain_table[i][0] = Math.min(gain_table[i][0] + val, gain_table[i][1]);
+                    if (gain_table[i][1] <= gain_table[i][2]){
+                      gain_table[i][2] = gain_table[i][1]
+                    }
+                    //gain_table[i][2] = Math.min(Math.max(gain_table[i][2] + val, MIN_DB), MAX_DB);
                   }
                 }
                 //console.log("Initial Slider: " + gain_table)
-                first_arr = gain_table;
+                // finalGains_afterSlider = gain_table;
                 setInitial(gain_table)
               }}
             />
@@ -170,9 +176,12 @@ export default function ButtonFitting(this: any) {
                     var MAX_DB = MAX_DB_HF;
                     var MIN_DB = MIN_DB_HF;
                   }
-                  gain_table[i][0] = Math.min(Math.max(finalGains[i][0] + val, MIN_DB-8), MAX_DB-7)
-                  gain_table[i][1] = Math.min(Math.max(finalGains[i][1] + val, MIN_DB), MAX_DB)
-                  gain_table[i][2] = Math.min(Math.max(finalGains[i][2] + val, MIN_DB), MAX_DB)
+                  gain_table[i][1] = Math.min(Math.max(gain_table[i][1] + val, MIN_DB), MAX_DB);
+                  gain_table[i][0] = Math.min(gain_table[i][0] + val, gain_table[i][1]);
+                  if (gain_table[i][1] <= gain_table[i][2]){
+                    gain_table[i][2] = gain_table[i][1]
+                  }
+                  // gain_table[i][2] = Math.min(Math.max(finalGains[i][2] + val, MIN_DB), MAX_DB)
                 }
                 sendSetDeviceGainButtonCommand(matrixFormatter(gain_table));
                     // get first column of newGain
