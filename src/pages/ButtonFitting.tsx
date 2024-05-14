@@ -83,14 +83,16 @@ export default function ButtonFitting(this: any) {
       for(let i = 0; i < 6; i++){
         newGainCol.push(finalGains[i][1])
       }
+      sendStoreFinalStepCommand(math.matrix(finalGains))
     } else {
       // console.log("Final Button: " + finalGains_afterSlider)
       for(let i = 0; i < 6; i++){
         newGainCol.push(finalGains_afterSlider[i][1])
-      }
+        }
+        sendStoreFinalStepCommand(math.matrix(finalGains_afterSlider))
     }
     // console.log("Final Button2: " + newGainCol)
-    sendStoreFinalStepCommand(math.matrix(newGainCol))
+    
   }
 
   return (
@@ -107,9 +109,9 @@ export default function ButtonFitting(this: any) {
               renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
               orientation="vertical"
               pearling
-              minDistance={1}
-              min={-10}
-              max={10}
+              minDistance={2}
+              min={-15}
+              max={15}
               invert={true}
               onChange={(val) => {
                 let gain_table: number[][] = JSON.parse(JSON.stringify(NAL_TABLE));
@@ -124,9 +126,9 @@ export default function ButtonFitting(this: any) {
                     }
                     gain_table[i][1] = Math.min(Math.max(gain_table[i][1] + val, MIN_DB), MAX_DB);
                     gain_table[i][0] = Math.min(gain_table[i][0] + val, gain_table[i][1]);
-                    if (gain_table[i][1] <= gain_table[i][2]){
-                      gain_table[i][2] = gain_table[i][1]
-                    }
+                    // if (gain_table[i][1] < gain_table[i][2]){
+                    //   gain_table[i][2] = gain_table[i][1]
+                    // }
                     //gain_table[i][2] = Math.min(Math.max(gain_table[i][2] + val, MIN_DB), MAX_DB);
                   }
                 }
@@ -161,9 +163,9 @@ export default function ButtonFitting(this: any) {
               renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
               orientation="vertical"
               pearling
-              minDistance={1}
-              min={-10}
-              max={10}
+              minDistance={2}
+              min={-15}
+              max={15}
               invert={true}
               onChange={(val) => {
                 //console.log(finalGains)
@@ -178,9 +180,9 @@ export default function ButtonFitting(this: any) {
                   }
                   gain_table[i][1] = Math.min(Math.max(gain_table[i][1] + val, MIN_DB), MAX_DB);
                   gain_table[i][0] = Math.min(gain_table[i][0] + val, gain_table[i][1]);
-                  if (gain_table[i][1] <= gain_table[i][2]){
-                    gain_table[i][2] = gain_table[i][1]
-                  }
+                  // if (gain_table[i][1] < gain_table[i][2]){
+                  //   gain_table[i][2] = gain_table[i][1]
+                  // }
                   // gain_table[i][2] = Math.min(Math.max(finalGains[i][2] + val, MIN_DB), MAX_DB)
                 }
                 sendSetDeviceGainButtonCommand(matrixFormatter(gain_table));

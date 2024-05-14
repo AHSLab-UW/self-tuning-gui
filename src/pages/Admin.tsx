@@ -97,21 +97,26 @@ export default function Admin({ }: Props) {
       <button
         className="big-button-admin"
         onClick={() => {
-          let csv =
-            "Bands,SF_Indoor_Button,SF_Indoor_Grid,SF_Outdoor_Button,SF_Outdoor_Grid\n";
+          let csv = "Bands,SF_Indoor_Button_1,SF_Indoor_Button_2,SF_Indoor_Button_3,SF_Indoor_Grid_1,SF_Indoor_Grid_2,SF_Indoor_Grid_3,SF_Outdoor_Button_1,SF_Outdoor_Button_2,SF_Outdoor_Button_3,SF_Outdoor_Grid_1,SF_Outdoor_Grid_2,SF_Outdoor_Grid_3\n";
           for (let i = 0; i < bands.length; i++) {
             csv += bands[i] + ",";
             for (let j = 0; j < 4; j++) {
               if (data[j] && data[j].length > 0 && data[j] !== "[]") {
-                const arr = JSON.parse(data[j]) as number[];
-                if (arr && arr[i]) csv += Math.round(arr[i]);
+                const arr = JSON.parse(data[j]) as number[][];
+                if (arr && arr[i]) {
+                  csv += arr[i].join(",");
+                } else {
+                  csv += ",,"; // Add two empty values if arr[i] is not defined
+                }
+              } else {
+                csv += ",,,"; // Add three empty values if data[j] is not defined
               }
               csv += ",";
             }
             csv = csv.substring(0, csv.length - 1);
             csv += "\n";
           }
-
+         
           handleExportClick(csv);
         }}
       >
