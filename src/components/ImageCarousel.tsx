@@ -159,7 +159,7 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images }) => {
           marginLeft: 50,
         }}
       />
-      <h2>{(currentImageIndex == 0) ? "Outdoor" : "Indoor"}</h2>
+      <h2>{(currentImageIndex == 0) ? "Scene 1" : "Scene 2"}</h2>
       <NextButton 
       style={{ marginTop: 70 }}
         onclick={() => {

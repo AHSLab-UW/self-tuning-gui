@@ -49,6 +49,10 @@ const CollapsingSidebar = (props: Props) => {
         <Link className="link" to="/intro3">
           Audio Play
         </Link> */}
+        <Link className="link" to="/manual_fit">
+          Manual Fitting
+        </Link>
+
         <Link className="link" to="/select">
           Select Location
         </Link>

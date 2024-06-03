@@ -64,6 +64,7 @@ function ManualFitting() {
 <table className="frequency-table" style={{ marginTop: '70px' }}>
 <thead>
 <tr>
+<th> Frequency</th>
 <th>Expansion Slope</th>
 <th>40 dB</th>
 <th>80 dB</th>
@@ -72,6 +73,7 @@ function ManualFitting() {
 <tbody>
           {Object.entries(values).map(([frequency, data]) => (
 <tr key={frequency}>
+<td className="white-text">{frequency}</td>
 <td>
 <input
                   type="text" // Changed to text to allow negative sign and validation handling

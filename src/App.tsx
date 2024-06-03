@@ -31,6 +31,7 @@ const routes = [
   // { path: "/intro2", name: "Intro 2", element: <Intro2 /> },
   // { path: "/intro3", name: "Intro 3", element: <Intro3 /> },
   { path: "/select", name: "Select", element: <Select /> },
+  { path: "/manual_fit", name: "Manual Fit", element: <ManualFitting /> },
   { path: "/fit-select", name: "Fitting Select", element: <FittingSelect /> },
   {
     path: "/fit-instruct",
@@ -52,7 +53,6 @@ const routes = [
     name: "Fitting Instruction2",
     element: <FittingInstruction22 />,
   },
-  { path: "/manual_fit", name: "ManualFitting", element: <ManualFitting /> },
   { path: "/buttons", name: "ButtonFitting", element: <ButtonFitting /> },
   { path: "/grid", name: "GridFitting", element: <GridFitting /> },
   { path: "/prompt", name: "Prompt", element: <Prompt /> },

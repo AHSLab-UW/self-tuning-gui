@@ -1,5 +1,5 @@
-import driving from "../assets/imgs/outdoor.jpg";
-import restaurant from "../assets/imgs/indoor.jpg";
+import scene1 from "../assets/imgs/outdoor.jpg";
+import scene2 from "../assets/imgs/indoor.jpg";
 import ImageCarousel from "../components/ImageCarousel";
 import "../styles/Select.css";
 
@@ -12,8 +12,8 @@ export default function Select(this: any) {
       
         <ImageCarousel
           images={[
-            { src: driving, alt: "outdoor" },
-            { src: restaurant, alt: "indoor" }
+            { src: scene1, alt: "Scene 1" },
+            { src: scene2, alt: "Scene 2" }
           ]}
         />
       </div>

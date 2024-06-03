@@ -44,10 +44,10 @@ export default function Admin({ }: Props) {
             .then((res) => res.json())
             .then((data) => {
               setData([
-                data.indoorButton,
-                data.indoorGrid,
-                data.outdoorButton,
-                data.outdoorGrid,
+                data.scene2Button,
+                data.scene2Grid,
+                data.scene1Button,
+                data.scene1Grid,
               ]);
             });
         }}
@@ -57,21 +57,21 @@ export default function Admin({ }: Props) {
       <div className="column-wrapper">
   <div className="column">
     <div className="column-container">
-      <h2>Indoor - Button</h2>
+      <h2>Scene 2 - Button</h2>
       <p>{data[0]}</p>
     </div>
     <div className="column-container">
-      <h2>Outdoor - Button</h2>
+      <h2>Scene 1 - Button</h2>
       <p>{data[2]}</p>
     </div>
   </div>
   <div className="column">
     <div className="column-container">
-      <h2>Indoor - Grid</h2>
+      <h2>Scene 2 - Grid</h2>
       <p>{data[1]}</p>
     </div>
     <div className="column-container">
-      <h2>Outdoor - Grid</h2>
+      <h2>Scene 1 - Grid</h2>
       <p>{data[3]}</p>
     </div>
   </div>
@@ -97,7 +97,7 @@ export default function Admin({ }: Props) {
       <button
         className="big-button-admin"
         onClick={() => {
-          let csv = "Bands,SF_Indoor_Button_1,SF_Indoor_Button_2,SF_Indoor_Button_3,SF_Indoor_Grid_1,SF_Indoor_Grid_2,SF_Indoor_Grid_3,SF_Outdoor_Button_1,SF_Outdoor_Button_2,SF_Outdoor_Button_3,SF_Outdoor_Grid_1,SF_Outdoor_Grid_2,SF_Outdoor_Grid_3\n";
+          let csv = "Bands,SF_S2_Button_1,SF_S2_Button_2,SF_S2_Button_3,SF_S2_Grid_1,SF_S2_Grid_2,SF_S2_Grid_3,SF_S1_Button_1,SF_S1_Button_2,SF_S1_Button_3,SF_S1_Grid_1,SF_S1_Grid_2,SF_S1_Grid_3\n";
           for (let i = 0; i < bands.length; i++) {
             csv += bands[i] + ",";
             for (let j = 0; j < 4; j++) {

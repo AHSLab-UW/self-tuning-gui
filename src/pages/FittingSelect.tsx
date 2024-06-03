@@ -15,14 +15,14 @@ export default function FittingSelect() {
         text="Buttons"
       />
       <div className="top-space"></div>
-      <NextButton
+      {/* <NextButton
         onclick={() => {
           localStorage.setItem("fitType", "grid");
         }}
         to="/fit-instruct"
         text="Grid"
         style={{ marginTop: 100 }}
-      />
+      /> */}
     </div>
   );
 }

@@ -32,7 +32,7 @@ export default function Name() {
             } else {
               sendDeviceCommand("?read:/home/mha/dc_tuning.cfg");
               navigate("/manual_fit")
-              // pause 1 seconds
+              // pause 2 seconds
               setTimeout(() => {console.log('start program')}, 2000)
               sendDeviceCommand("cmd=start");
             }
