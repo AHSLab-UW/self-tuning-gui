@@ -28,10 +28,10 @@ interface Values {
  
 function ManualFitting() {
   const [values, setValues] = useState<Values>({
-    "0.25 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '5' },
     "0.5 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '5' },
     "1 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '5' },
-    "2 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '0' },
+    "2 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '5' },
+    "3 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '0' },
     "4 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '0' },
     "6 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '0' }
   });

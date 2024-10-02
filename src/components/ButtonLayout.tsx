@@ -39,7 +39,7 @@ export interface Coordinates {
   x: number;
   y: number;
 }
-export const MAX_STEP = 20;
+export const MAX_STEP = 28;
 export const DB_GAIN = 10;
 export const MAX_DB_LF = 42;
 export const MAX_DB_HF = 42;
@@ -47,22 +47,24 @@ export const MIN_DB_LF = -10;
 export const MIN_DB_HF = -10;
 
 export const db_indices = [ 8, 8, 
-                            7, 6, 6, 
+                            7, 6, 7, 6, 
                             4, 
-                            8, 8, 
-                            8, 9, 9, 8,
-                            8, 9, 9, 8,
-                            8, 9, 9, 8
+                            7, 7, 
+                            6, 5, 6, 5,
+                            8, 7, 9, 8, 8,
+                            8, 7, 9, 8, 8,
+                            8, 7, 9, 8, 8
                           ]
 // gainIndex determines which frequency band (1-6) to adjust
 const GAIN_INDICES = new Map<number, number[]>([
-                [1, [3, 4, 5]], [2, [0, 1, 2]], 
-                [3, [2, 3]], [4, [4, 5]], [5, [0, 1]], 
-                [6, [0, 1, 2, 3, 4, 5]], 
-                [7, [0, 1, 2]], [8, [3, 4, 5]],
-                [9,  [0, 1]],[10,[2]], [11,[3]], [12, [4, 5]],
-                [13, [0, 1]],[14,[2]], [15,[3]], [16, [4, 5]], 
-                [17, [0 ,1]],[18,[2]], [19,[3]], [20, [4, 5]]
+                [1, [2, 3, 4, 5]], [2, [0, 1]], 
+                [3, [1, 2]], [4, [2, 3]], [5, [3, 4, 5]], [6, [0, 1]], 
+                [7, [0, 1, 2, 3, 4, 5]], 
+                [8, [2, 3, 4, 5]], [9, [0, 1]],
+                [10, [1, 2]], [11, [2, 3]], [12, [3, 4, 5]], [13, [0, 1]], 
+                [14, [2]],[15,[3]], [16,[4, 5]], [17, [1]], [18, [0]],
+                [19, [2]],[20,[3]], [21,[4, 5]], [22, [1]], [23, [0]],
+                [24, [2]],[25,[3]], [26,[4, 5]], [27, [1]], [28, [0]]
 ]);
 // displays gain table on front end for debugging purposes
 export function gainToString(arr: number[][]): string {
@@ -201,19 +203,19 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
             newGain[gindex][2] = JSON.parse(JSON.stringify(aggregateGain[gindex][2]))
           }
           // Adjusting the neighbring bands by fraction
-          if (gindex == 1 && trialNum >= 9)
+          if (gindex == 1 && trialNum >= 14)
           {
-            newGain[gindex + 1 ][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex + 1][1] + delta/2, MIN_DB), MAX_DB))));
-            let slope = (40 + aggregateGain[gindex+ 1][1] - aggregateGain[gindex+ 1][0]) / 40
-            newGain[gindex+ 1][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex+ 1][1] + delta, MIN_DB), MAX_DB))));
-            newGain[gindex+ 1][0] = JSON.parse(JSON.stringify(40 + newGain[gindex+ 1][1] - 40 * slope));
-            if (newGain[gindex+ 1][1] < aggregateGain[gindex+ 1][2]){
-              newGain[gindex+ 1][2] = JSON.parse(JSON.stringify(newGain[gindex+ 1][1]))
-            } else if ((newGain[gindex+ 1][1] - newGain[gindex+ 1][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
-              newGain[gindex+ 1][2] = Math.round(newGain[gindex+ 1][1] - 80 / 2.3)}
-            else {newGain[gindex+ 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex+ 1][2]))}
+            newGain[gindex - 1 ][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex - 1][1] + delta/2, MIN_DB), MAX_DB))));
+            let slope = (40 + aggregateGain[gindex - 1][1] - aggregateGain[gindex - 1][0]) / 40
+            newGain[gindex - 1][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex - 1][1] + delta, MIN_DB), MAX_DB))));
+            newGain[gindex - 1][0] = JSON.parse(JSON.stringify(40 + newGain[gindex - 1][1] - 40 * slope));
+            if (newGain[gindex - 1][1] < aggregateGain[gindex - 1][2]){
+              newGain[gindex - 1][2] = JSON.parse(JSON.stringify(newGain[gindex - 1][1]))
+            } else if ((newGain[gindex+ 1][1] - newGain[gindex - 1][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
+              newGain[gindex - 1][2] = Math.round(newGain[gindex - 1][1] - 80 / 2.3)}
+            else {newGain[gindex - 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex - 1][2]))}
           }
-          if (gindex == 2 && trialNum >= 9)
+          if (gindex == 2 && trialNum >= 14)
           {// adjust + neightbor
             newGain[gindex + 1 ][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex + 1][1] + delta/3, MIN_DB), MAX_DB))));
             let slope = (40 + aggregateGain[gindex+ 1][1] - aggregateGain[gindex+ 1][0]) / 40
@@ -236,7 +238,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
              newGain[gindex- 1][2] = Math.round(newGain[gindex- 1][1] - 80 / 2.3)}
            else {newGain[gindex- 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex- 1][2]))}
           }
-          if (gindex == 3 && trialNum >= 9)
+          if (gindex == 3 && trialNum >= 14)
           {// adjust + neightbor
             newGain[gindex + 1 ][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex + 1][1] + delta/3, MIN_DB), MAX_DB))));
             let slope = (40 + aggregateGain[gindex+ 1][1] - aggregateGain[gindex+ 1][0]) / 40
@@ -258,7 +260,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
               newGain[gindex- 1][2] = Math.round(newGain[gindex- 1][1] - 80 / 2.3)}
             else {newGain[gindex- 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex- 1][2]))}
           }
-          if (gindex == 4 && trialNum >= 9)
+          if (gindex == 4 && trialNum >= 14)
           {// adjust - neightbor
            newGain[gindex - 1 ][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex - 1][1] + delta/3, MIN_DB), MAX_DB))));
            slope = (40 + aggregateGain[gindex- 1][1] - aggregateGain[gindex- 1][0]) / 40
@@ -276,7 +278,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
       }
     }
     setNewGain(newGain)
-    sendSetDeviceGainButtonCommand(matrixFormatter(newGain));
+    sendSetDeviceGainButtonCommand(matrixFormatter(newGain))
     
     // get first column of newGain amd store
     let newGainCol = [];
@@ -294,13 +296,13 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
       return;
     }
     setBlockedClick(false);
-    if(trialNum > 8){
+    if(trialNum > 13){
       let band: number[] = GAIN_INDICES.get(trialNum) || []
       let round = 0;
-      if(trialNum > 12){ // starts getting the last ones to average
+      if(trialNum > 18){ // starts getting the last ones to average
         round = 1
       }
-      if(trialNum > 16){
+      if(trialNum > 23){
         round = 2;
       }
       //console.log(band)
@@ -328,7 +330,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
     sendStoreButtonStepCommand(math.matrix(newGain), trialNum);
     sendStoreLogCommand(math.matrix([]), { x: 0, y: 0 }, 6, math.matrix(newGain), math.matrix([]), trialNum);
     trialNum++;
-    if(trialNum == 9){
+    if(trialNum == 14){
       setHalf(true)
     }
     if(trialNum == MAX_STEP){
@@ -392,7 +394,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
       }
       // aggregateGain[i][2] = avg;
     }
-    // console.log("avg = " + aggregateGain)
+    console.log("avg = " + aggregateGain)
     setNewGain(aggregateGain)
     sendSetDeviceGainButtonCommand(matrixFormatter(aggregateGain));
     // getLast(aggregateGain); //<--send to the button fitting
