@@ -4,7 +4,8 @@ import React, { useState } from "react";
 
 type Props = {};
 
-const bands = [250, 500, 1000, 2000, 4000, 8000];
+//const bands = [250, 500, 1000, 2000, 4000, 8000];
+const bands = [0.5, 1, 2, 3, 4, 6];
 
 export default function Admin({ }: Props) {
   const [data, setData] = useState<string[]>([]);

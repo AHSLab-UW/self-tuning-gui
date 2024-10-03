@@ -39,7 +39,7 @@ export interface Coordinates {
   x: number;
   y: number;
 }
-export const MAX_STEP = 28;
+export const MAX_STEP = 26;
 export const DB_GAIN = 10;
 export const MAX_DB_LF = 42;
 export const MAX_DB_HF = 42;
@@ -47,10 +47,10 @@ export const MIN_DB_LF = -10;
 export const MIN_DB_HF = -10;
 
 export const db_indices = [ 8, 8, 
-                            7, 6, 7, 6, 
+                            7, 6, 7,
                             4, 
                             7, 7, 
-                            6, 5, 6, 5,
+                            6, 5, 6,
                             8, 7, 9, 8, 8,
                             8, 7, 9, 8, 8,
                             8, 7, 9, 8, 8
@@ -58,13 +58,13 @@ export const db_indices = [ 8, 8,
 // gainIndex determines which frequency band (1-6) to adjust
 const GAIN_INDICES = new Map<number, number[]>([
                 [1, [2, 3, 4, 5]], [2, [0, 1]], 
-                [3, [1, 2]], [4, [2, 3]], [5, [3, 4, 5]], [6, [0, 1]], 
-                [7, [0, 1, 2, 3, 4, 5]], 
-                [8, [2, 3, 4, 5]], [9, [0, 1]],
-                [10, [1, 2]], [11, [2, 3]], [12, [3, 4, 5]], [13, [0, 1]], 
-                [14, [2]],[15,[3]], [16,[4, 5]], [17, [1]], [18, [0]],
-                [19, [2]],[20,[3]], [21,[4, 5]], [22, [1]], [23, [0]],
-                [24, [2]],[25,[3]], [26,[4, 5]], [27, [1]], [28, [0]]
+                [3, [1, 2]], [4, [2, 3]], [5, [3, 4, 5]],
+                [6, [0, 1, 2, 3, 4, 5]], 
+                [7, [2, 3, 4, 5]], [8, [0, 1]],
+                [9, [1, 2]], [10, [2, 3]], [11, [3, 4, 5]],
+                [12, [2]],[13,[3]], [14,[4, 5]], [15, [1]], [16, [0]],
+                [17, [2]],[18,[3]], [19,[4, 5]], [20, [1]], [21, [0]],
+                [22, [2]],[23,[3]], [24,[4, 5]], [25, [1]], [26, [0]]
 ]);
 // displays gain table on front end for debugging purposes
 export function gainToString(arr: number[][]): string {
@@ -303,13 +303,13 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
       return;
     }
     setBlockedClick(false);
-    if(trialNum > 13){
+    if(trialNum > 11){
       let band: number[] = GAIN_INDICES.get(trialNum) || []
       let round = 0;
-      if(trialNum > 18){ // starts getting the last ones to average
+      if(trialNum > 16){ // starts getting the last ones to average
         round = 1
       }
-      if(trialNum > 23){
+      if(trialNum > 21){
         round = 2;
       }
       //console.log(band)
@@ -337,7 +337,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
     sendStoreButtonStepCommand(math.matrix(newGain), trialNum);
     sendStoreLogCommand(math.matrix([]), { x: 0, y: 0 }, 6, math.matrix(newGain), math.matrix([]), trialNum);
     trialNum++;
-    if(trialNum == 14){
+    if(trialNum == 12){
       setHalf(true)
     }
     if(trialNum == MAX_STEP){
@@ -396,6 +396,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
       let slope = (40 + aggregateGain[i][1] - aggregateGain[i][0]) / 40
       aggregateGain[i][0] = 40 + avg - 40 * slope;
       aggregateGain[i][1] = avg;
+
       if (aggregateGain[i][1] < aggregateGain[i][2]){
         aggregateGain[i][2] = aggregateGain[i][1]
       }
