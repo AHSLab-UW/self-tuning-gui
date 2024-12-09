@@ -69,7 +69,8 @@ const GAIN_INDICES = new Map<number, number[]>([
 // displays gain table on front end for debugging purposes
 export function gainToString(arr: number[][]): string {
   let str = "";
-  let freq = ["250hz: ", "500hz: ", "1khz: ", "2khz: ", "4khz: ", "8khz: "];
+  //let freq = ["250hz: ", "500hz: ", "1khz: ", "2khz: ", "4khz: ", "8khz: "];
+  let freq = ["500hz: ", "1khz: ", "2khz: ", "3khz: ", "4khz: ", "6khz: "];
   for(let i = 0; i < arr.length; i++){
     str += freq[i];
     str += "[" + arr[i][0] + ", "+ arr[i][1] + ", "+ arr[i][2] + "]";
@@ -174,7 +175,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
     let button_coeff= VALUES.get(gainShuffler[index]) || 0
     let delta_step = db_indices[trialNum-1]
     let delta = button_coeff * delta_step
-    if (delta == 0) {console.log("this")}
+    //if (delta == 0) {console.log("this")}
     // console.log(aggregateGain)
     let newGain = JSON.parse(JSON.stringify(aggregateGain));
     for (let i = 0; i < gainIndex.length; i++) {
@@ -194,10 +195,10 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
           newGain[gindex][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex][1] + delta, MIN_DB), MAX_DB))));
           newGain[gindex][0] = JSON.parse(JSON.stringify(40 + newGain[gindex][1] - 40 * slope));
           if (newGain[gindex][1] < aggregateGain[gindex][2]){
-            console.log('reducing high gain')
+            //console.log('reducing high gain')
             newGain[gindex][2] = JSON.parse(JSON.stringify(newGain[gindex][1]))
           } else if ((newGain[gindex][1] - newGain[gindex][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
-            console.log('increasing high gain')
+            //console.log('increasing high gain')
             newGain[gindex][2] = Math.round(newGain[gindex][1] - 80 / 2.3)
           }
           else {
@@ -292,7 +293,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
     for(let i = 0; i < 6; i++){
       newGainCol.push(newGain[i][1])
     }
-    console.log(newGain)
+    //console.log(newGain)
     //sendStoreButtonClickCommand(math.matrix(newGainCol), trialNum, index);
     sendStoreLogCommand(math.matrix([]), { x: 0, y: 0 }, index, math.matrix(newGainCol), math.matrix([]), trialNum);
   };
@@ -323,7 +324,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
           console.error(`Invalid index: ${index}`);
         }
       }
-      console.log('last rounds are:',lastRounds)
+      //console.log('last rounds are:',lastRounds)
     }
     setAggregateGain(newGain)
     //aggregateGain = newGain;
@@ -381,7 +382,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
           console.error(`Invalid index: ${index}`);
         }
       }
-      console.log("last rounds are", lastRounds)
+      //console.log("last rounds are", lastRounds)
     }
     // get first column of newGain
     let newGainCol = [];
@@ -402,7 +403,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
       }
       // aggregateGain[i][2] = avg;
     }
-    console.log("avg = " + aggregateGain)
+    //console.log("avg = " + aggregateGain)
     setNewGain(aggregateGain)
     sendSetDeviceGainButtonCommand(matrixFormatter(aggregateGain));
     // getLast(aggregateGain); //<--send to the button fitting

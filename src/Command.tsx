@@ -3,13 +3,13 @@ import { Coordinates, gridMatrixFormatter } from "./components/ButtonLayout";
 // import { gainToString } from "./components/Grid";
 
 export const sendDeviceCommand = (command: string) => {
-  // console.log("sending command: ", command);
+  console.log("sending command: ", command);
   return fetch(`/device?command=${command}`)
     .then((data) => {
       return data;
     })
     .catch((err) => {
-      console.log(err.message);
+      //console.log(err.message);
     });
 };
 
@@ -54,7 +54,7 @@ export const sendSetDeviceGainButtonCommand = (g: math.Matrix) => {
       .join(";") +
     "]";
 
-  // console.log("sending this gaintable to device " + gaintable_og)
+  //console.log("sending this gaintable to device " + gaintable_og)
   // send command to server at endpoint /store
   sendDeviceCommand(
     "mha.mhachain.overlapadd.mhachain.dc.gtdata=" + gaintable_og

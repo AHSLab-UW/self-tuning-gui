@@ -99,7 +99,7 @@ export default function ButtonFitting(this: any) {
     <>
       {fitted == 0 && (
         <div>
-        <h1 className="last-prompt" > First, adjust the slider to a comfortable sound level</h1>
+        <h1 className="last-prompt" > First, adjust the slider to the preferred sound level</h1>
 
           <div className="slider-container top-space" style={{marginTop: 80}}>
             <ReactSlider
@@ -110,8 +110,8 @@ export default function ButtonFitting(this: any) {
               orientation="vertical"
               pearling
               minDistance={2}
-              min={-15}
-              max={15}
+              min={-10}
+              max={10}
               invert={true}
               onChange={(val) => {
                 let gain_table: number[][] = JSON.parse(JSON.stringify(NAL_TABLE));
@@ -164,8 +164,8 @@ export default function ButtonFitting(this: any) {
               orientation="vertical"
               pearling
               minDistance={2}
-              min={-15}
-              max={15}
+              min={-10}
+              max={10}
               invert={true}
               onChange={(val) => {
                 //console.log(finalGains)
