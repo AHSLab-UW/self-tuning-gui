@@ -19,7 +19,19 @@ let trialNum = 1;
 
 var aggregateGain: number[][] = initialGain
 
-export var lastRounds = initialGain;
+export var lastRounds: number[][] = [[0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0]];
+                                      
+export var lastRounds2 : number[][] = [[0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0],
+                                      [0, 0, 0]];
 // buttons map to different gains
 const VALUES = new Map<number, number>();
 VALUES.set(0, 0);
@@ -41,27 +53,27 @@ export interface Coordinates {
 }
 export const MAX_STEP = 26;
 export const DB_GAIN = 10;
-export const MAX_DB_LF = 42;
-export const MAX_DB_HF = 42;
-export const MIN_DB_LF = -10;
-export const MIN_DB_HF = -10;
+export const MAX_DB_LF = 50;
+export const MAX_DB_HF = 50;
+export const MIN_DB_LF = -20;
+export const MIN_DB_HF = -20;
 
-export const db_indices = [ 8, 8, 
-                            7, 6, 7,
-                            4, 
-                            7, 7, 
-                            6, 5, 6,
-                            8, 7, 9, 8, 8,
-                            8, 7, 9, 8, 8,
-                            8, 7, 9, 8, 8
+export const db_indices = [ 12, 12, 
+                            13, 11, 13,
+                            8, 
+                            11, 11, 
+                            12, 10, 12,
+                            15, 12, 16, 14, 16,
+                            15, 12, 16, 14, 16,
+                            15, 12, 16, 14, 16,
                           ]
 // gainIndex determines which frequency band (1-6) to adjust
 const GAIN_INDICES = new Map<number, number[]>([
                 [1, [2, 3, 4, 5]], [2, [0, 1]], 
-                [3, [1, 2]], [4, [2, 3]], [5, [3, 4, 5]],
+                [3, [1, 2]], [4, [3, 4, 5]], [5, [2, 3]],
                 [6, [0, 1, 2, 3, 4, 5]], 
                 [7, [2, 3, 4, 5]], [8, [0, 1]],
-                [9, [1, 2]], [10, [2, 3]], [11, [3, 4, 5]],
+                [9, [1, 2]], [10, [3, 4, 5]], [11, [2, 3]],
                 [12, [2]],[13,[3]], [14,[4, 5]], [15, [1]], [16, [0]],
                 [17, [2]],[18,[3]], [19,[4, 5]], [20, [1]], [21, [0]],
                 [22, [2]],[23,[3]], [24,[4, 5]], [25, [1]], [26, [0]]
@@ -104,11 +116,11 @@ export function matrixFormatter(arr: number[][]): math.Matrix {
     let mid = arr[i][1]
     let right = arr[i][2]
     matrix.set([i, 0], left)
-    matrix.set([i + 6, 0], left)
     matrix.set([i, 1], mid)
     matrix.set([i, 2], right)
-    matrix.set([i+6, 1], mid)
-    matrix.set([i+6, 2], right)
+    matrix.set([i + 6, 0], left)
+    matrix.set([i + 6, 1], mid)
+    matrix.set([i + 6, 2], right)
   //   for(let j = 0; j < 11; j++){
   //     matrix.set([i, j], left)
   //     matrix.set([i + 6, j], left)
@@ -194,93 +206,111 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
           let slope = (40 + aggregateGain[gindex][1] - aggregateGain[gindex][0]) / 40
           newGain[gindex][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex][1] + delta, MIN_DB), MAX_DB))));
           newGain[gindex][0] = JSON.parse(JSON.stringify(40 + newGain[gindex][1] - 40 * slope));
-          if (newGain[gindex][1] < aggregateGain[gindex][2]){
+          if (newGain[gindex][1] < aggregateGain[gindex][2]){ // if the gain is too low , make it linear gain, i.e. middle column equal to the right column
             //console.log('reducing high gain')
             newGain[gindex][2] = JSON.parse(JSON.stringify(newGain[gindex][1]))
-          } else if ((newGain[gindex][1] - newGain[gindex][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
-            //console.log('increasing high gain')
-            newGain[gindex][2] = Math.round(newGain[gindex][1] - 80 / 2.3)
+          } else if ((40 + newGain[gindex][2] - newGain[gindex][1]) < 40 / 2.3) { 
+            newGain[gindex][2] = Math.max(Math.round(newGain[gindex][1] - 40 + 40 / 2.3), MIN_DB)
+            } else { newGain[gindex][2] = JSON.parse(JSON.stringify(aggregateGain[gindex][2])) }
+
+          // ADJUSTING smooth transitions for the low freq
+          if (gindex == 1 && trialNum == 3 || trialNum == 9)
+          {
+            newGain[gindex][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex][1] + delta/2, MIN_DB), MAX_DB))));
+            newGain[gindex][0] = JSON.parse(JSON.stringify(40 + newGain[gindex][1] - 40 * slope));
+            if (newGain[gindex][1] < aggregateGain[gindex][2]){ newGain[gindex][2] = JSON.parse(JSON.stringify(newGain[gindex][1]))
+            } else if ((40 + newGain[gindex][2] - newGain[gindex][1]) < 40 / 2.3) {
+              newGain[gindex][2] = Math.max(Math.round(newGain[gindex][1] - 40 + 40 / 2.3), MIN_DB)
+            } else { newGain[gindex][2] = JSON.parse(JSON.stringify(aggregateGain[gindex][2])) }
+            //console.log(newGain)
           }
-          else {
-            newGain[gindex][2] = JSON.parse(JSON.stringify(aggregateGain[gindex][2]))
+          if (gindex == 2 && trialNum == 1 || trialNum == 7)
+          {
+            newGain[gindex][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex][1] + delta/2, MIN_DB), MAX_DB))));
+            newGain[gindex][0] = JSON.parse(JSON.stringify(40 + newGain[gindex][1] - 40 * slope));
+            if (newGain[gindex][1] < aggregateGain[gindex][2]){
+              newGain[gindex][2] = JSON.parse(JSON.stringify(newGain[gindex][1]))
+            } else if ((40 + newGain[gindex][2] - newGain[gindex][1]) < 40 / 2.3) { 
+              newGain[gindex][2] = Math.max(Math.round(newGain[gindex][1] - 40 + 40 / 2.3), MIN_DB)
+            } else { newGain[gindex][2] = JSON.parse(JSON.stringify(aggregateGain[gindex][2])) }
+            //console.log(newGain)
           }
-          // Adjusting the neighbring bands by fraction
-          if (gindex == 0 && trialNum >= 14)
+          // Adjusting the NEIGHBORING bands by fraction for the last trials
+          if (gindex == 0 && trialNum >= 12)
           {// adjust + neightbor
             newGain[gindex + 1][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex + 1][1] + delta/2, MIN_DB), MAX_DB))));
             let slope = (40 + aggregateGain[gindex+ 1][1] - aggregateGain[gindex+ 1][0]) / 40
             newGain[gindex + 1][0] = JSON.parse(JSON.stringify(40 + newGain[gindex+ 1][1] - 40 * slope));
-            if (newGain[gindex+ 1][1] < aggregateGain[gindex+ 1][2]){
-              // middle column equal to the right column
-              newGain[gindex+ 1][2] = JSON.parse(JSON.stringify(newGain[gindex+ 1][1]))
-            } else if ((newGain[gindex+ 1][1] - newGain[gindex+ 1][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
-              newGain[gindex+ 1][2] = Math.round(newGain[gindex+ 1][1] - 80 / 2.3)}
-            else {newGain[gindex+ 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex+ 1][2]))}
+            if (newGain[gindex + 1][1] < aggregateGain[gindex+ 1][2]){ 
+              newGain[gindex+ 1][2] = JSON.parse(JSON.stringify(newGain[gindex + 1][1])) 
+            } else if ((40 + newGain[gindex + 1][2] - newGain[gindex + 1][1]) < 40 / 2.3) { 
+              newGain[gindex + 1][2] = Math.max(Math.round(newGain[gindex + 1][1] - 40 + 40 / 2.3), MIN_DB) 
+              } else { newGain[gindex + 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex + 1][2])) } 
           }
-          if (gindex == 1 && trialNum >= 14)
+          if (gindex == 1 && trialNum >= 12)
           {
             newGain[gindex - 1 ][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex - 1][1] + delta/2, MIN_DB), MAX_DB))));
             let slope = (40 + aggregateGain[gindex - 1][1] - aggregateGain[gindex - 1][0]) / 40
             newGain[gindex - 1][0] = JSON.parse(JSON.stringify(40 + newGain[gindex - 1][1] - 40 * slope));
             if (newGain[gindex - 1][1] < aggregateGain[gindex - 1][2]){
-              newGain[gindex - 1][2] = JSON.parse(JSON.stringify(newGain[gindex - 1][1]))
-            } else if ((newGain[gindex+ 1][1] - newGain[gindex - 1][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
-              newGain[gindex - 1][2] = Math.round(newGain[gindex - 1][1] - 80 / 2.3)}
-            else {newGain[gindex - 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex - 1][2]))}
+              newGain[gindex - 1][2] = JSON.parse(JSON.stringify(newGain[gindex - 1][1])) } 
+              else if ((40 + newGain[gindex - 1][2] - newGain[gindex - 1][1]) < 40 / 2.3) { // Max Compression Ratio - adjust denumerator
+               newGain[gindex - 1][2] = Math.max(Math.round(newGain[gindex - 1][1] - 40 + 40 / 2.3), MIN_DB) }
+                else { newGain[gindex - 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex - 1][2]))}
           }
-          if (gindex == 2 && trialNum >= 14)
+          if (gindex == 2 && trialNum >= 12)
           {// adjust + neightbor
             newGain[gindex + 1][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex + 1][1] + delta/3, MIN_DB), MAX_DB))));
-            let slope = (40 + aggregateGain[gindex+ 1][1] - aggregateGain[gindex+ 1][0]) / 40
+            let slope = (40 + aggregateGain[gindex + 1][1] - aggregateGain[gindex+ 1][0]) / 40
             newGain[gindex + 1][0] = JSON.parse(JSON.stringify(40 + newGain[gindex+ 1][1] - 40 * slope));
-            if (newGain[gindex+ 1][1] < aggregateGain[gindex+ 1][2]){
+            if (newGain[gindex + 1][1] < aggregateGain[gindex + 1][2]){
               // middle column equal to the right column
-              newGain[gindex+ 1][2] = JSON.parse(JSON.stringify(newGain[gindex+ 1][1]))
-            } else if ((newGain[gindex+ 1][1] - newGain[gindex+ 1][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
-              newGain[gindex+ 1][2] = Math.round(newGain[gindex+ 1][1] - 80 / 2.3)}
-            else {newGain[gindex+ 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex+ 1][2]))}
+              newGain[gindex + 1][2] = JSON.parse(JSON.stringify(newGain[gindex + 1][1])) } 
+              else if ((40 + newGain[gindex + 1][2] - newGain[gindex + 1][1]) < 40 / 2.3) { // Max Compression Ratio - adjust denumerator
+                newGain[gindex + 1][2] = Math.max(Math.round(newGain[gindex + 1][1] - 40 + 40 / 2.3), MIN_DB) }
+                else { newGain[gindex + 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex + 1][2])) }
             // adjust - neightbor
             newGain[gindex - 1 ][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex - 1][1] + delta/3, MIN_DB), MAX_DB))));
             slope = (40 + aggregateGain[gindex- 1][1] - aggregateGain[gindex- 1][0]) / 40
             newGain[gindex- 1][0] = JSON.parse(JSON.stringify(40 + newGain[gindex- 1][1] - 40 * slope));
             if (newGain[gindex- 1][1] < aggregateGain[gindex- 1][2]){
-             newGain[gindex- 1][2] = JSON.parse(JSON.stringify(newGain[gindex- 1][1]))
-            } else if ((newGain[gindex- 1][1] - newGain[gindex- 1][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
-             newGain[gindex- 1][2] = Math.round(newGain[gindex- 1][1] - 80 / 2.3)}
-           else {newGain[gindex- 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex- 1][2]))}
+              newGain[gindex - 1][2] = JSON.parse(JSON.stringify(newGain[gindex - 1][1])) }
+              else if ((40 + newGain[gindex - 1][2] - newGain[gindex - 1][1]) < 40 / 2.3) { // Max Compression Ratio - adjust denumerator
+              newGain[gindex - 1][2] = Math.max(Math.round(newGain[gindex - 1][1] - 40 + 40 / 2.3), MIN_DB) }
+              else { newGain[gindex - 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex - 1][2])) }
           }
-          if (gindex == 3 && trialNum >= 14)
+          if (gindex == 3 && trialNum >= 12)
           {// adjust + neightbor
             newGain[gindex + 1 ][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex + 1][1] + delta/3, MIN_DB), MAX_DB))));
             let slope = (40 + aggregateGain[gindex+ 1][1] - aggregateGain[gindex+ 1][0]) / 40
             newGain[gindex+ 1][0] = JSON.parse(JSON.stringify(40 + newGain[gindex+ 1][1] - 40 * slope));
-            if (newGain[gindex+ 1][1] < aggregateGain[gindex+ 1][2]){
-              newGain[gindex+ 1][2] = JSON.parse(JSON.stringify(newGain[gindex+ 1][1]))
-            } else if ((newGain[gindex+ 1][1] - newGain[gindex+ 1][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
-              newGain[gindex+ 1][2] = Math.round(newGain[gindex+ 1][1] - 80 / 2.3)}
-            else {newGain[gindex+ 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex+ 1][2]))}
+            if (newGain[gindex + 1][1] < aggregateGain[gindex + 1][2]){
+              newGain[gindex + 1][2] = JSON.parse(JSON.stringify(newGain[gindex + 1][1])) } 
+              else if ((40 + newGain[gindex + 1][2] - newGain[gindex + 1][1]) < 40 / 2.3) { // Max Compression Ratio - adjust denumerator
+                newGain[gindex + 1][2] = Math.max(Math.round(newGain[gindex + 1][1] - 40 + 40 / 2.3), MIN_DB) }
+              else {  newGain[gindex + 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex + 1][2])) }
             // adjust - neightbor
             newGain[gindex - 1 ][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex - 1][1] + delta/3, MIN_DB), MAX_DB))));
             slope = (40 + aggregateGain[gindex- 1][1] - aggregateGain[gindex- 1][0]) / 40
-            newGain[gindex- 1][0] = JSON.parse(JSON.stringify(40 + newGain[gindex- 1][1] - 40 * slope));
-            if (newGain[gindex- 1][1] < aggregateGain[gindex- 1][2]){
-              newGain[gindex- 1][2] = JSON.parse(JSON.stringify(newGain[gindex- 1][1]))
-            } else if ((newGain[gindex- 1][1] - newGain[gindex- 1][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
-              newGain[gindex- 1][2] = Math.round(newGain[gindex- 1][1] - 80 / 2.3)}
-            else {newGain[gindex- 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex- 1][2]))}
+            newGain[gindex - 1][0] = JSON.parse(JSON.stringify(40 + newGain[gindex - 1][1] - 40 * slope));
+            if (newGain[gindex - 1][1] < aggregateGain[gindex - 1][2]){
+              newGain[gindex - 1][2] = JSON.parse(JSON.stringify(newGain[gindex - 1][1])) }
+              else if ((40 + newGain[gindex - 1][2] - newGain[gindex - 1][1]) < 40 / 2.3) { // Max Compression Ratio - adjust denumerator
+                newGain[gindex - 1][2] = Math.max(Math.round(newGain[gindex - 1][1] - 40 + 40 / 2.3), MIN_DB) }
+                else { newGain[gindex - 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex - 1][2])) }
           }
-          if (gindex == 4 && trialNum >= 14)
+          if (gindex == 4 && trialNum >= 12)
           {// adjust - neightbor
            newGain[gindex - 1 ][1] = JSON.parse(JSON.stringify(Math.round(Math.min(Math.max(aggregateGain[gindex - 1][1] + delta/3, MIN_DB), MAX_DB))));
            slope = (40 + aggregateGain[gindex- 1][1] - aggregateGain[gindex- 1][0]) / 40
            newGain[gindex- 1][0] = JSON.parse(JSON.stringify(40 + newGain[gindex- 1][1] - 40 * slope));
            if (newGain[gindex- 1][1] < aggregateGain[gindex- 1][2]){
-             newGain[gindex- 1][2] = JSON.parse(JSON.stringify(newGain[gindex- 1][1]))
-           } else if ((newGain[gindex- 1][1] - newGain[gindex- 1][2]) > 80 / 2.3) { // Max Compression Ratio - adjust denumerator
-             newGain[gindex- 1][2] = Math.round(newGain[gindex- 1][1] - 80 / 2.3)}
-           else {newGain[gindex- 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex- 1][2]))}
+              newGain[gindex- 1][2] = JSON.parse(JSON.stringify(newGain[gindex- 1][1]))}
+              else if ((40 + newGain[gindex - 1][2] - newGain[gindex - 1][1]) < 40 / 2.3) { 
+                newGain[gindex - 1][2] = Math.max(Math.round(newGain[gindex - 1][1] - 40 + 40 / 2.3), MIN_DB) }
+                else { newGain[gindex - 1][2] = JSON.parse(JSON.stringify(aggregateGain[gindex - 1][2]))}
           }
-          //newGain[gindex][2] = Math.min(Math.max(newGain[gindex][2] + delta, MIN_DB), MAX_DB);
+          
       } else {
         console.error(`Invalid index: ${gainIndex[i]}`);
       }
@@ -293,7 +323,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
     for(let i = 0; i < 6; i++){
       newGainCol.push(newGain[i][1])
     }
-    //console.log(newGain)
+    // console.log(newGain)
     //sendStoreButtonClickCommand(math.matrix(newGainCol), trialNum, index);
     sendStoreLogCommand(math.matrix([]), { x: 0, y: 0 }, index, math.matrix(newGainCol), math.matrix([]), trialNum);
   };
@@ -313,13 +343,13 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
       if(trialNum > 21){
         round = 2;
       }
-      //console.log(band)
       // Iterate over the elements in band
       for (let i = 0; i < band.length; i++) {
         let index = band[i];
         // Check if index is a valid index for newGain and lastRounds
         if (index >= 0 && index < newGain.length && index < lastRounds.length) {
           lastRounds[index][round] = newGain[index][1];
+          lastRounds2[index][round] = newGain[index][2];
         } else {
           console.error(`Invalid index: ${index}`);
         }
@@ -378,11 +408,14 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
         // Check if index is a valid index for newGain and lastRounds
         if (index >= 0 && index < newGain.length && index < lastRounds.length) {
           lastRounds[index][2] = newGain[index][1];
+          lastRounds2[index][2] = newGain[index][2];
         } else {
           console.error(`Invalid index: ${index}`);
         }
       }
+      setAggregateGain(newGain)
       //console.log("last rounds are", lastRounds)
+      //console.log("last rounds 2 are", lastRounds2)
     }
     // get first column of newGain
     let newGainCol = [];
@@ -394,14 +427,18 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
     for(let i = 0; i < 6; i++){
       //console.log("lastRounds = " + lastRounds)
       let avg = math.round((lastRounds[i][0] + lastRounds[i][1] + lastRounds[i][2]) / 3);
+      aggregateGain[i][1] = avg;
       let slope = (40 + aggregateGain[i][1] - aggregateGain[i][0]) / 40
       aggregateGain[i][0] = 40 + avg - 40 * slope;
-      aggregateGain[i][1] = avg;
+      let avg2 = math.round((lastRounds2[i][0] + lastRounds2[i][1] + lastRounds2[i][2]) / 3);
+      aggregateGain[i][2] = avg2;
 
       if (aggregateGain[i][1] < aggregateGain[i][2]){
-        aggregateGain[i][2] = aggregateGain[i][1]
+        aggregateGain[i][2] = aggregateGain[i][1]} 
+        else if ((40 + aggregateGain[i][2] - aggregateGain[i][1]) < 40 / 2.3) { 
+          // Max Compression Ratio - adjust denumerator
+          aggregateGain[i][2] = Math.max(Math.round(aggregateGain[i][1] - 40 + 40 / 2.3), MIN_DB_HF)
       }
-      // aggregateGain[i][2] = avg;
     }
     //console.log("avg = " + aggregateGain)
     setNewGain(aggregateGain)

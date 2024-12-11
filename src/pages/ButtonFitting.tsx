@@ -110,8 +110,8 @@ export default function ButtonFitting(this: any) {
               orientation="vertical"
               pearling
               minDistance={2}
-              min={-10}
-              max={10}
+              min={-20}
+              max={20}
               invert={true}
               onChange={(val) => {
                 let gain_table: number[][] = JSON.parse(JSON.stringify(NAL_TABLE));
@@ -126,10 +126,13 @@ export default function ButtonFitting(this: any) {
                     }
                     gain_table[i][1] = Math.min(Math.max(gain_table[i][1] + val, MIN_DB), MAX_DB);
                     gain_table[i][0] = Math.min(gain_table[i][0] + val, gain_table[i][1]);
-                    // if (gain_table[i][1] < gain_table[i][2]){
-                    //   gain_table[i][2] = gain_table[i][1]
-                    // }
-                    //gain_table[i][2] = Math.min(Math.max(gain_table[i][2] + val, MIN_DB), MAX_DB);
+                    if (gain_table[i][1] < gain_table[i][2]){// if the gain is too low , make it linear gain, i.e. middle column equal to the right column
+                      console.log('reducing G2')
+                      gain_table[i][2] = JSON.parse(JSON.stringify(gain_table[i][1]))
+                    } else if ((40 + gain_table[i][2] - gain_table[i][1]) < 40 / 2.3) { // Max Compression Ratio - adjust denumerator
+                       console.log('increasing G2')
+                        gain_table[i][2] = Math.max(Math.round(gain_table[i][1] - 40 + 40 / 2.3), MIN_DB)
+                    }
                   }
                 }
                 //console.log("Initial Slider: " + gain_table)
@@ -164,8 +167,8 @@ export default function ButtonFitting(this: any) {
               orientation="vertical"
               pearling
               minDistance={2}
-              min={-10}
-              max={10}
+              min={-16}
+              max={16}
               invert={true}
               onChange={(val) => {
                 //console.log(finalGains)
@@ -180,10 +183,13 @@ export default function ButtonFitting(this: any) {
                   }
                   gain_table[i][1] = Math.min(Math.max(gain_table[i][1] + val, MIN_DB), MAX_DB);
                   gain_table[i][0] = Math.min(gain_table[i][0] + val, gain_table[i][1]);
-                  // if (gain_table[i][1] < gain_table[i][2]){
-                  //   gain_table[i][2] = gain_table[i][1]
-                  // }
-                  // gain_table[i][2] = Math.min(Math.max(finalGains[i][2] + val, MIN_DB), MAX_DB)
+                  if (gain_table[i][1] < gain_table[i][2]){// if the gain is too low , make it linear gain, i.e. middle column equal to the right column
+                    console.log('reducing G2')
+                    gain_table[i][2] = JSON.parse(JSON.stringify(gain_table[i][1]))
+                  } else if ((40 + gain_table[i][2] - gain_table[i][1]) < 40 / 2.3) { // Max Compression Ratio - adjust denumerator
+                      console.log('increasing G2')
+                      gain_table[i][2] = Math.max(Math.round(gain_table[i][1] - 40 + 40 / 2.3), MIN_DB)
+                  }
                 }
                 sendSetDeviceGainButtonCommand(matrixFormatter(gain_table));
                     // get first column of newGain
