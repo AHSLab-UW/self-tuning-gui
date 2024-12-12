@@ -3,12 +3,12 @@ import '../styles/Manual_fitting.css'; // Make sure this path is correct
 import { sendSetDeviceGainButtonCommand } from '../Command';
 import { matrixFormatter } from '../components/ButtonLayout';
 
-export var NAL_TABLE: number[][] = [[5, 10, 5],
-                                    [5, 10, 5],
-                                    [5, 10, 5],
-                                    [5, 10, 6],
-                                    [8, 16, 6],
-                                    [10, 20, 10]];
+export var NAL_TABLE: number[][] = [[-30, 10, 0],
+                                    [-30, 10, 0],
+                                    [-30, 10, 0],
+                                    [-30, 10, 0],
+                                    [-30, 10, 0],
+                                    [-30, 10, 0]];
 
 // Function to update the matrix
 export const setMatrix = (newMatrix: number[][]) => {
@@ -28,9 +28,9 @@ interface Values {
  
 function ManualFitting() {
   const [values, setValues] = useState<Values>({
-    "0.5 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '5' },
-    "1 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '5' },
-    "2 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '5' },
+    "0.5 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '0' },
+    "1 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '0' },
+    "2 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '0' },
     "3 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '0' },
     "4 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '0' },
     "6 kHz": { expansionSlope: '2', fortyDb: '10', seventyDb: '0' }
