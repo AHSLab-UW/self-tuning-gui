@@ -109,9 +109,9 @@ export default function ButtonFitting(this: any) {
               renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
               orientation="vertical"
               pearling
-              minDistance={2}
-              min={-20}
-              max={20}
+              minDistance={1}
+              min={-10}
+              max={10}
               invert={true}
               onChange={(val) => {
                 let gain_table: number[][] = JSON.parse(JSON.stringify(NAL_TABLE));
@@ -124,8 +124,8 @@ export default function ButtonFitting(this: any) {
                       var MAX_DB = MAX_DB_HF;
                       var MIN_DB = MIN_DB_HF;
                     }
-                    gain_table[i][1] = Math.min(Math.max(gain_table[i][1] + val, MIN_DB), MAX_DB);
-                    gain_table[i][0] = Math.min(gain_table[i][0] + val, gain_table[i][1]);
+                    gain_table[i][1] = Math.min(Math.max(gain_table[i][1] + val/3*2, MIN_DB), MAX_DB);
+                    gain_table[i][0] = Math.min(gain_table[i][0] + val/3*2, gain_table[i][1]);
                     if (gain_table[i][1] < gain_table[i][2]){// if the gain is too low , make it linear gain, i.e. middle column equal to the right column
                       console.log('reducing G2')
                       gain_table[i][2] = JSON.parse(JSON.stringify(gain_table[i][1]))
@@ -166,9 +166,9 @@ export default function ButtonFitting(this: any) {
               renderThumb={(props, state) => <div {...props}>{state.valueNow}</div>}
               orientation="vertical"
               pearling
-              minDistance={2}
-              min={-16}
-              max={16}
+              minDistance={1}
+              min={-10}
+              max={10}
               invert={true}
               onChange={(val) => {
                 //console.log(finalGains)
@@ -181,8 +181,8 @@ export default function ButtonFitting(this: any) {
                     var MAX_DB = MAX_DB_HF;
                     var MIN_DB = MIN_DB_HF;
                   }
-                  gain_table[i][1] = Math.min(Math.max(gain_table[i][1] + val, MIN_DB), MAX_DB);
-                  gain_table[i][0] = Math.min(gain_table[i][0] + val, gain_table[i][1]);
+                  gain_table[i][1] = Math.min(Math.max(gain_table[i][1] + val/3*2, MIN_DB), MAX_DB);
+                  gain_table[i][0] = Math.min(gain_table[i][0] + val/3*2, gain_table[i][1]);
                   if (gain_table[i][1] < gain_table[i][2]){// if the gain is too low , make it linear gain, i.e. middle column equal to the right column
                     console.log('reducing G2')
                     gain_table[i][2] = JSON.parse(JSON.stringify(gain_table[i][1]))
