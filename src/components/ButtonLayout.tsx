@@ -56,14 +56,14 @@ export const DB_GAIN = 10;
 export const MAX_DB_LF = 42;
 export const MAX_DB_HF = 30;
 export const MIN_DB_LF = -10;
-export const MIN_DB_HF = -20;
+export const MIN_DB_HF = -15;
 
 export const db_indices = [ 12, 14, 
-                            13, 13, 12,
+                            12, 12, 12,
                             8, 
                             10, 12, 
-                            11, 11, 10,
-                            14, 14, 16, 14, 16,
+                            10, 10, 10,
+                            12, 12, 14, 12, 14,
                             12, 12, 14, 12, 14,
                             10, 10, 14, 10, 14,
                           ]

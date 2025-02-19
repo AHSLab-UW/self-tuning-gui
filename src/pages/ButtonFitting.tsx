@@ -81,15 +81,15 @@ export default function ButtonFitting(this: any) {
     if (slider_flag == 0){
       // console.log("Final Button: " + finalGains)
       for(let i = 0; i < 6; i++){
-        newGainCol.push(finalGains[i][1])
+        newGainCol.push(math.round(finalGains[i][1]))
       }
-      sendStoreFinalStepCommand(math.matrix(finalGains))
+      sendStoreFinalStepCommand(math.round(math.matrix(finalGains)))
     } else {
       // console.log("Final Button: " + finalGains_afterSlider)
       for(let i = 0; i < 6; i++){
-        newGainCol.push(finalGains_afterSlider[i][1])
+        newGainCol.push(math.round(finalGains_afterSlider[i][1]))
         }
-        sendStoreFinalStepCommand(math.matrix(finalGains_afterSlider))
+        sendStoreFinalStepCommand(math.round(math.matrix(finalGains_afterSlider)))
     }
     // console.log("Final Button2: " + newGainCol)
     
