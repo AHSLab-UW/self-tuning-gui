@@ -4,7 +4,7 @@ import { ProgressBar } from "./ProgressBar";
 import * as math from "mathjs";
 import "../styles/NextButton.css";
 import { getRandomColor } from "../Colors";
-import { sendSetDeviceGainButtonCommand, sendStoreButtonClickCommand, sendStoreButtonStepCommand, sendStoreLogCommand } from '../Command';
+import { sendDeviceCommandGet, sendSetDeviceGainButtonCommand, sendStoreButtonClickCommand, sendStoreButtonStepCommand, sendStoreLogCommand } from '../Command';
 import { send } from 'process';
 import { getFinalG, initialGain } from '../pages/ButtonFitting';
 import { getWindowDimensions } from './GridLayout';
@@ -183,6 +183,8 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
     } //<---- ensure exploration #1
     else{setIsExplored(true)}
     setLastClickedIndex(index)
+    let in_level = sendDeviceCommandGet("mha.calib_in.rmslevel?val");
+    console.log("Sound level:", in_level);
     let gainIndex = GAIN_INDICES.get(trialNum) || [];
     let button_coeff= VALUES.get(gainShuffler[index]) || 0
     let delta_step = db_indices[trialNum-1]
@@ -549,3 +551,7 @@ const ButtonLayout = ({setFitted, setHalf}: Props) => {
 export default ButtonLayout;
 
 export interface Coordinates { x: number; y: number; }
+
+function sendDeviceCommand(arg0: string) {
+  throw new Error('Function not implemented.');
+}

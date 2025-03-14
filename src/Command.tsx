@@ -2,6 +2,49 @@ import * as math from "mathjs";
 import { Coordinates, gridMatrixFormatter } from "./components/ButtonLayout";
 // import { gainToString } from "./components/Grid";
 
+// export const sendDeviceCommandGet = (command: string) => {
+//   console.log("sending command: ", command);
+//   return fetch(`/device?${command}`)
+//     .then((data) => {
+//       console.log(data)
+//       return data;
+//     })
+//     .catch((err) => {
+//       console.log(err.message);
+//     });
+// };
+export const sendDeviceCommandGet = async (command: string) => {
+  try {
+    console.log("sending command get: ", command);
+    const response = await fetch(`/device?command=${encodeURIComponent(command)}`);
+    if (!response.ok) {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+    const data = await response.json();
+    console.log("Response from server:", data);
+
+    // Extract the numbers from the message and calculate the average
+    const numbers = data.message
+      .replace(/[\[\]\n]/g, '') // Remove brackets and newlines
+      .split(' ') // Split by spaces
+      .map((num: string) => parseFloat(num)); // Convert strings to numbers
+
+    const average = numbers.reduce((sum: any, num: any) => sum + num, 0) / numbers.length;
+    // console.log("Average:", average);
+    
+    // Return the average
+    return average;
+
+  } catch (err: unknown) {  // Typing 'err' as 'unknown'
+    if (err instanceof Error) {  // Narrowing down to Error type
+      console.log("error message", err.message);
+    } else {
+      console.log("An unexpected error occurred");
+    }
+  }
+};
+
+
 export const sendDeviceCommand = (command: string) => {
   console.log("sending command: ", command);
   return fetch(`/device?command=${command}`)
